@@ -2,21 +2,23 @@
 
 
 ### _Motivtion_
-_**Doubt:**_ Unexpected high performance of shallow CNN (4 Conv2d layers only) on Pneumonia Dataset. <br>
-_**Hypothesis:**_ Possible model overfitting on unwanted features rather than Pneumonia. 
+_**Doubt:**_ Unexpectedly high classical performance metrics (AUC, F1, Acc) of compact CNNs (< 150M parameters) on small (~5k X-rays) Pneumonia Dataset. <br>
+_**Hypothesis:**_ Possible model overfitting on unwanted features rather than the target pathology, Pneumonia. 
 
 ### _Problem Statement_
-Improving Convolutional Neural Network classification and feature localisation for Pneumonia Chest X-rays in the scenario of lack of extensive
+Improving Convolutional Neural Network classification and feature localisation for Pneumonia Chest X-rays in the scenario of a lack of extensive
 annotated data and access to extensive GPU Training architectures.
 
 ### _Approach_
 
-* A model-independent, self-sufficient, **cyclic process** is developed to achieve better Pneumonia localisation and improve performance metrics on the given dataset.
-* The **recursive optimization cycle for CNN models**: GradCAM generation → Enhanced data-set construction by overlaying GradCAMs on input → U-Net Lung Segmentation → Model tuning on enhanced data-set.
-* The proposed cycle **tackles self-imposed challenges of limited data** and suboptimal localization by **iteratively augmenting and re-utilizing the original dataset**, thereby refining the model’s focus on pneumonia-specific features.
+* Developed a **model-independent, self-sufficient** and **recursive optimisation** framework for CNN models utilising Gradient Class Activation Maps (GradCAMs), to tackle challenges of limited data and suboptimal localisation by iteratively augmenting and re-using the original dataset.
+     - GradCAM, like heatmaps, are used to visualise regions of the input image which strongly influence the model's classification output. 
+     - Trained a compact CNN (~100M parameters) on a small dataset (~4.5k X-rays) that achieved high accuracy and F1 score, but showed poor pathology localisation when analysed using Grad-CAMs.
+     - Iteratively enhanced the dataset by overlaying Grad-CAMs from high-confidence predictions onto input images to highlight pneumonia-relevant regions, creating a refined dataset for model fine-tuning.
+     - Repeated the process to progressively improve localisation, producing models that better identified disease-relevant regions with each cycle.
   
   ![image](https://github.com/user-attachments/assets/e14a62a0-4af0-40e6-94ff-8a52712a726d)
-  _Image showing one aforementioned cycle_
+  _Image depicting one aforementioned cycle_
 
 &nbsp;
 
@@ -27,7 +29,7 @@ annotated data and access to extensive GPU Training architectures.
   
   ### General
   * **Code**: **Pytorch** | **Data-set**: [paultimothymooney](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia).
-  * After opening the notebook in Collab, please go to `File > Save as copy in Google Drive` to experiment with the code after reading the **Data Handing** section below.
+  * After opening the notebook in Collab, please go to `File > Save as copy in Google Drive` to experiment with the code after reading the **Data Handling** section below.
     
   ### Data Handling 
   * **.zip file** containing the **Pneumonia Dataset** must be uploaded to the `My Drive` folder of the **Google Drive** mounted to the collab notebook.
@@ -54,7 +56,7 @@ annotated data and access to extensive GPU Training architectures.
   
   ### Initial testing for Pneumonia localisation
   * Implemented GradCAM functionality to check Pneumonia localisation of baseline and pre-trained models.
-  * Concluded the optimal model architecture and optimized it. 
+  * Identified and optimised the optimal model architecture. 
   
   ### Different Architectures
   #### TinyVGG `CNN_GradCAM_v1.pth`
@@ -88,7 +90,7 @@ annotated data and access to extensive GPU Training architectures.
   
   ### Best Overall Localisation and Performance: ResNet-101 `ResNet-101_GradCAM_v1.pth`
   * There is an unwanted focus on **void regions** surrounding the skeleton.
-  * To fix this, a small center-crop was added to training images before feeding them to the model, thus preventing the model from "learning" these void regions.
+  * To fix this, a small centre crop was added to training images before feeding them to the model, thus preventing the model from "learning" these void regions.
   
      <img src="https://github.com/user-attachments/assets/d80871ad-91a9-46a5-befe-5d34128d6119" alt="Grid of GradCAMs" width="650" height="320"><br>
   
@@ -112,8 +114,8 @@ annotated data and access to extensive GPU Training architectures.
   
   ### Enhanced Data Set
   * Train Data enhanced by overlaying accurate GarCAMs.
-    * "**enhanced**" - important features emphasized (in "white") while the rest of the image is suppressed.
-    * "**accurate**" - the assumption is that GradCAMs localized to the lung are fairly accurate.
+    * "**enhanced**" - important features emphasised (in "white") while the rest of the image is suppressed.
+    * "**accurate**" - The assumption is that GradCAMs localised to the lung are fairly accurate.
     
       <img src="https://github.com/user-attachments/assets/c672799b-1b9c-4c76-8fca-2d5480763dd1" width="500" height="500"><br>
       _Image showing 49 images from the enhanced train data<br>post data transformations_
@@ -137,7 +139,8 @@ annotated data and access to extensive GPU Training architectures.
   <summary> <b><i>Details</i></b> </summary>
 
   ### Summary
-  * We successfully can develop a **workaround for the limited data constraint** to iteratively obtain better localisation & identification of pneumonia.
+  * 
+  * We can successfully develop a **workaround for the limited data constraint** to iteratively obtain better localisation & identification of pneumonia.
   * During this process, as expected, test accuracy takes a small hit as the model diverges away from unwanted "easy" to detect features.
   
   ### Results on annotated images
